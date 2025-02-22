@@ -1,0 +1,140 @@
+# Alex Kastigar's Text-Based Adventure Game
+# 10-20-24
+
+import random
+
+# Function to show intro instructions
+def show_instructions():
+    print("Welcome to the Ghost Hunter Adventure Game!")
+    print("Goal: Collect all 6 items to face the ghost and win the game.")
+    print("Move commands: go North, go South, go East, go West")
+    print("To collect an item: grab 'item name'")
+    print("Be careful, the ghost is lurking in the Master Bedroom!")
+    print("Type 'help' to see available commands.")
+    print("-" * 50)
+
+
+# Function to display player's status
+def show_status(current_room, inventory, rooms, collected_items, ghost_sounds, no_sounds):
+    print(f"\nYou are in the {current_room}")
+    print(f"Inventory: {inventory}")
+    
+    # Print ghostly sounds until all items are collected
+    if not no_sounds and collected_items < 6:
+        print(f"You hear a ghostly {random.choice(ghost_sounds)} from far away.")
+
+    if "item" in rooms[current_room]:
+        print(f"You see a {rooms[current_room]['item']}")
+    
+    print("-" * 50)
+
+
+# Function to display available commands
+def show_help():
+    print("\nAvailable Commands:")
+    print("go [direction] - Move to a different room (e.g., 'go North', 'go West'). Must be Capitalized")
+    print("grab [item] - Pick up an item in the current room (e.g., 'grab Holy Water').")
+    print("help - Show this help message with available commands.")
+    print("quit - Exit the game.")
+    print("-" * 50)
+
+
+# Function to print custom grab messages
+def custom_grab_message(item):
+    if item == "Amulet":
+        print("You pick up the amulet and it glows and vibrates to your touch.")
+    elif item == "Mirror":
+        print("You smash the mirror on the wall and pick up a pocketable shard.")
+    elif item == "Silver Knife":
+        print("You grab the Silver Butter Knife even though it is very dull.")
+    elif item == "Holy Water":
+        print("You take a nearby flask and scoop up a bit of Holy Water from the sink.")
+    elif item == "Zapper Gun":
+        print("You snatch the NES toy gun and realize that it's been modified to shoot real bullets.")
+    elif item == "Spellbook":
+        print("You handle the ancient Spellbook and marvel at how it is held together for so long.")
+
+
+# Main function
+def main():
+    # Dictionary linking rooms and their corresponding items
+    rooms = {
+        'Entrance Hall': {'North': 'Bathroom', 'South': 'Library', 'East': 'Kitchen', 'West': 'Attic'},
+        'Library': {'North': 'Entrance Hall', 'East': 'Man Cave', 'item': 'Spellbook'},
+        'Dining Room': {'South': 'Kitchen', 'item': 'Silver Knife'},
+        'Kitchen': {'West': 'Entrance Hall', 'North': 'Dining Room', 'item': 'Holy Water'},
+        'Attic': {'East': 'Entrance Hall', 'item': 'Amulet'},
+        'Man Cave': {'West': 'Library', 'item': 'Zapper Gun'},
+        'Bathroom': {'South': 'Entrance Hall', 'East': 'Master Bedroom', 'item': 'Mirror'},
+        'Master Bedroom': {'West': 'Bathroom', 'item': 'Ghost'},  # Villain room
+    }
+
+    # Ghostly sounds
+    ghost_sounds = ['cackle', 'laugh', 'cry', 'scream', 'whisper']
+    no_sounds = False  # Tracks when sounds should stop after collecting all items
+
+    # Initialize variables
+    inventory = []
+    current_room = 'Entrance Hall'
+    collected_items = 0
+    total_items = 6  # Number of items to collect to win
+
+    show_instructions()
+
+    while True:
+        show_status(current_room, inventory, rooms, collected_items, ghost_sounds, no_sounds)
+
+        # Prompt user for next move
+        move = input("Enter your move: ").strip().lower()
+
+        if move.startswith("go "):
+            direction = move.split()[1].capitalize()
+            # Check if the direction is valid in the current room
+            if direction in rooms[current_room]:
+                current_room = rooms[current_room][direction]
+            else:
+                print("You can't go that way!")
+
+        elif move.startswith("get "):
+            item = move.split("get ")[1].title()  # .title() handles multi-word items like "Holy Water"
+            # Check if the item is in the current room
+            if "item" in rooms[current_room] and rooms[current_room]['item'].lower() == item.lower():
+                if item not in inventory:
+                    inventory.append(item)
+                    custom_grab_message(item)  # Print the custom get message
+                    del rooms[current_room]['item']  # Remove the item from the room
+                    collected_items += 1
+
+                    # After collecting all items, print empowerment message and disable ghost sounds
+                    if collected_items == total_items:
+                        print("\nYou have collected all six items and now feel empowered to take on the Ghost.")
+                        no_sounds = True  # Stop ghostly sounds
+
+                else:
+                    print(f"You already have the {item}.")
+            else:
+                print(f"There's no {item} here.")
+
+        elif move.startswith("help"):
+            show_help()
+
+        elif move == "quit":
+            print("Thanks for playing! Goodbye!")
+            break
+
+        else:
+            print("Invalid command! Type 'help' to see available commands.")
+
+        # Check for win/loss conditions
+        if current_room == 'Master Bedroom':
+            if collected_items == total_items:
+                print("Congratulations! You have collected all items and defeated the ghost!")
+                break
+            else:
+                print("You encountered the ghost without all the items...GAME OVER!")
+                break
+
+
+# Run the game
+if __name__ == "__main__":
+    main()
