@@ -95,8 +95,8 @@ def main():
             else:
                 print("You can't go that way!")
 
-        elif move.startswith("get "):
-            item = move.split("get ")[1].title()  # .title() handles multi-word items like "Holy Water"
+        elif move.startswith("grab "):
+            item = move.split("grab ")[1].title()  # .title() handles multi-word items like "Holy Water"
             # Check if the item is in the current room
             if "item" in rooms[current_room] and rooms[current_room]['item'].lower() == item.lower():
                 if item not in inventory:
